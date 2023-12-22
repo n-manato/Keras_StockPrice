@@ -1,1 +1,2 @@
 brand,window_size,n_hidden,units1,term,r2_score,rmse
+BA,80,200,150,10,0.8842,0.0426
