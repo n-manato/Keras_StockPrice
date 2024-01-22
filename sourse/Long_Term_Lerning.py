@@ -30,14 +30,14 @@ brand_list = ['NVDA', 'PFE', 'XOM', 'GS',
 for brand in brand_list:
     # CSVファイル名
     # フォルダのパス
-    folder_path = "change_windowsize_long_2"
+    folder_path = "change_term_long"
     csv_file = os.path.join(folder_path, f'{brand}.csv')
     # ヘッダーを書き込む
     with open(csv_file, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['brand', 'window_size', 'n_hidden',
                         'units1', 'term', 'r2_score', 'rmse'])
-    for num in range(10, 140, 10):
+    for num in range(10, 130, 5):
         print(brand)
         # データ取得
         ticker = brand
@@ -47,7 +47,7 @@ for brand in brand_list:
         data.columns = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 
         # テクニカル指標の計算
-        term = 25
+        term = num
         data['SMA'] = talib.SMA(data['Close'], timeperiod=term)
         data['EMA'] = talib.EMA(data['Close'], timeperiod=term)
         data['RSI'] = talib.RSI(data['Close'], timeperiod=term)
@@ -73,7 +73,7 @@ for brand in brand_list:
 
         # 訓練データと正解データの作成
         training_data_len = math.ceil(len(data) * .7)
-        window_size = num
+        window_size = 35
 
         train_data = scaled_data[0:training_data_len, :]
 

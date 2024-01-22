@@ -29,7 +29,7 @@ brand_list = ['NVDA', 'PFE', 'XOM', 'GS',
 
 for brand in brand_list:
     # フォルダのパス
-    folder_path = "change_term_short"
+    folder_path = "change_term_short_2"
     csv_file = os.path.join(folder_path, f'{brand}.csv')
     # ヘッダーを書き込む
     with open(csv_file, mode='w', newline='') as file:
@@ -178,7 +178,7 @@ for brand in brand_list:
         ax2 = plt.subplot(gs[0:5, 9:14])
 
         # 1番目のグラフを設定する
-        ax1.set_title('9カラムの履歴と予測結果', fontsize=16)
+        ax1.set_title('実際の株価と予測結果のグラフ', fontsize=16)
         ax1.set_xlabel('日付', fontsize=12)
         ax1.set_ylabel('終値 ＄', fontsize=12)
         ax1.plot(data['Close'], label='実際の価格')
@@ -186,15 +186,32 @@ for brand in brand_list:
         ax1.legend(loc='lower right')
         ax1.grid()
 
+        # X軸のラベルを斜めに表示
+        for tick in ax1.get_xticklabels():
+            tick.set_rotation(45)
+            tick.set_horizontalalignment('right')
+
         # 2番目のグラフを設定する
-        ax2.set_title('予測の価格と実際の価格の散布図表示', fontsize=16)
+        ax2.set_title('予測の価格と実際の価格の散布図', fontsize=16)
         ax2.set_xlabel('予測の価格', fontsize=12)
         ax2.set_ylabel('実際の価格', fontsize=12)
         ax2.scatter(actual_prices, predicted_prices,
-                    label=f'r2_score: {r2_score_value:.4f} \n rmse: {rmse:.4f}')
-        ax2.plot(actual_prices, actual_prices, 'k-')
+                    label='予測プロット')
+        ax2.plot(actual_prices, actual_prices, 'k-', label='実際の価格')
         ax2.legend()
         ax2.grid()
+
+        # テキストを追加する
+        text_x = -0.1  # テキストのx座標
+        text_y = -0.3  # テキストのy座標（負の値で下に配置）
+        text_content = f'r2_score: {r2_score_value:.4f}\nrmse: {rmse:.4f}'
+
+        # テキストボックスのスタイルを定義
+        bbox_style = dict(boxstyle='round', facecolor='white',
+                          edgecolor='black', pad=0.5)
+
+        ax2.text(text_x, text_y, text_content, transform=ax2.transAxes,
+                 fontsize=10, va='center', ha='left', bbox=bbox_style)
 
         # plt.show()  # グラフを表示
         # フォルダが存在しない場合は作成する
