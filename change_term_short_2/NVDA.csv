@@ -1,4 +1,0 @@
-brand,window_size,n_hidden,units1,term,r2_score,rmse
-NVDA,35,200,150,10,0.8693,0.0704
-NVDA,35,200,150,15,0.8226,0.0810
-NVDA,35,200,150,20,0.8534,0.0717
