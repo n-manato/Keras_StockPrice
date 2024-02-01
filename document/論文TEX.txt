@@ -1,0 +1,1481 @@
+\documentclass[a4j]{jarticle}
+\setcounter{secnumdepth}{5}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsmath}
+\usepackage{float}
+
+\begin{document}
+% 目次の出力
+\tableofcontents
+\clearpage
+ 
+% ここから本文
+\section{研究背景}
+オーストラリアでの短期留学中、円安の影響により物価の高騰を直に経験した。この経験から、外国為替の変動が様々な経済要因に影響を与え、それによって投資のチャンスが生まれることを実感した。特に株価の変動が注目され、その背後にある要因を理解し、これを活かす方法を模索することが重要であることに気づきを得た。
+
+この経験を契機に、将来の投資を見据え、資産運用において知識を深めることが必要だと考えている。初めに株価分析の研究を行うことで、経済や企業の動向に敏感に反応し、有益な情報を取捨選択できる能力を身に着けようと考えている。
+
+\section{研究目的}
+最近、プログラムを組む機会が多く、様々なプログラム言語やソフトウェア作成に触れることができた。その中で様々な「気づき」を得ることができた。例えば、私は最初「なぜ世の中にたくさんのプログラム言語が存在するのか？そもそも、どの言語もコンパイルの後に機械語なり最終０と１の数列になるのでは？」と考えていたが様々なプログラム言語に触れることで、C言語ではポインタという唯一無二の特徴があり、現在使用しているPythonではライブラリが豊富であるという現代では最も重要な汎用性という特徴があるようにそれぞれの言語には得意不得意があることに気付いた。
+
+ソフトウェア作成についても同じである。同じプログラム言語を使用して、用途の全く異なるソフトウェアを作成すると言語は同じなのに異なる言語を学んでいるかのように新しい「気づき」に出会うことができる。
+
+このように新しい目的のためにプログラムを書くことで多くの「気づき」に出会うことができると知った。そこで今回の研究では新たな試みとして、研究背景でも述べたように新たな私生活で感じた「資産運用」と授業を受けて興味を持った「機械学習」をテーマにしようと考えた。
+
+以上のことから今回の研究目的は「機械学習の理解を深め、株価の予測プログラムを開発する。」に決定した。また、このプログラムを活用し、市場の未来予測を試みることで、個別銘柄や市場全体の動向を理解する。
+
+具体的には、
+\begin{enumerate}
+\item 短期投資での学習と長期投資での学習を比較し、どちらが本研究で作成するプログラムに適しているかを検証、考察を行う。
+\item Kerasの各パラメータを変更した場合の検証と考察を行う。
+\item それぞれの結果をもとに銘柄や景気動向に対する自分の知識と比較し、総合評価を行う。
+\end{enumerate}
+の以上3つの項目である。
+
+\newpage
+
+\section{先行研究等}
+
+近年、株価の予測においては、時系列データや金融指標を活用したテクニカル分析やファンダメンタル分析、更にはニュース情報を含めたテキスト分析など、多岐にわたる手法が採用されている。例えば、主な株価の変動は以下の要因が考えられる。
+
+\begin{enumerate}
+\item ファンダメンタルズ（国や企業の経済活動の状況を示す要素）
+\item テクニカル（過去の時系列的な動きから導き出される株価の変動パターン）
+\item センチメント（相場状況や投資家心理に関する情報）
+\item アノマリー（倫理的に説明できない規則性）
+\end{enumerate}
+
+片寄らの先行研究\cite{人口知能学会研究会資料1}においては、株価の変動要因を徹底的に調査し、その要因に基づいた仮説を構築後テクニカル分析とランダムフォレストを用いて株価の予測が行われている。
+これらの中には数値化が難しいものも含まれており、数値化可能なものを選別し、それを主要因として選定している。過去の研究で既に数値データとその他を分離した研究が行われているため、本文献ではこれらの過去の研究を踏まえて仮説を立てる。仮説は以下の通りである。
+
+\begin{enumerate}
+  \item 株価変動の主要要因としたものの影響を調べることで、今回付属要因として位置付けたものの要因が実際の株価変動要因になっている部分を調べることができるのではないか。
+\end{enumerate}
+
+企業や国全体の景気動向、そしてテクニカル分析から株価を予測した際にある程度の予想ができるモデルができたとする。それが適用できない範囲、すなわち予測が外れる時期であった場合や条件などを洗いだすことができれば、データ量が少ない業績に関するニュースも、研究が多く行われているテキストマイニングによる株価予測もこれに適用しやすくなるのではないかと考えた。
+
+そのうえで、株価の主要因と位置づけた仮説の影響を検証し、それによって付随的な要因が実際の株価変動の主因となっているかどうかを調査している。具体的な検証手法としては以下の2点を採用している。
+
+\begin{enumerate}
+\item 企業や国の全体的な景気動向が個別銘柄に与える影響を、株価との相関性を通じて検証する。
+\item テクニカル指標を用いた手法をニューラルネットワークでモデル化し、その有用性を検証する。
+\end{enumerate}
+
+実行した結果、本文献のプログラムが有益な銘柄を発見することはできなかったものの、各銘柄が特定の特徴を有していることや、テクニカル分析の使い方が古い手法であったことが有用性の低下につながったが明らかになった。今後の課題としては、LSTMやRNNを用いた予測手法の採用が挙げられる。
+\newpage
+\section{開発環境}
+\subsection{使用コンピュータの開発環境}
+本研究で使用したコンピュータの概要は以下の通りである。
+
+\vskip\baselineskip
+
+\begin{tabular}{@{}p{2cm}@{}p{10cm}@{}} % 2つの列を持つ表を定義
+OS: & Windows10 \\
+Processor: & AMD Ryzen 7 4700G with Radeon Graphics 3.60 GHz \\
+Memory: & 16.00GB \\
+\end{tabular}
+\subsection{pythonについての開発環境}
+本研究ではプログラミングにpythonを使用し、主にテクニカル指標や機械学習に使用している。
+
+python バージョンは以下の通りである。
+\begin{itemize}
+\item Ver.3.10.9
+\end{itemize}
+\vskip\baselineskip
+
+使用ライブラリは以下の通りである。
+\begin{itemize}
+\item japanize\_matplotlib 1.1.3
+\item matplotlib 3.5.2
+\item sklearn 1.1.1
+\item tensorflow 2.15.0
+\item numpy 1.26.3
+\item yfinance 0.2.36
+\item talib 0.4.28
+\end{itemize}
+
+\section{研究方法}
+\subsection{研究手法}
+以下に大まかな研究手法を示す。
+\begin{itemize}
+\item yfinanceを使用して銘柄のデータを取得する。
+\item ８つのテクニカル指標を取得したデータを元に計算する。
+\item データを結合し、それぞれのカラムごとに正規化を行う。
+\item 正規化したデータをテストデータとトレーニングデータに分ける。
+\item トレーニングデータを使用してLSTMモデルを作成する。
+\item テストデータを使用して予測を行う。
+\item 結果をグラフにする。
+\item モデルの精度を評価する。
+\end{itemize}
+\subsection{データ取得方法}
+yfinanceを使用して、株価の日データを指定した期間で取得する。また、銘柄の指定には銘柄コードを使用する。
+\subsection{検証する銘柄について}
+以下に本研究で使用する銘柄10個を表\ref{stock}に示す。これは作成したプログラムがどの業種に対して有用であるかを検証する狙いがある。
+
+\begin{table}[H]
+\caption{本研究で使用する銘柄10選}
+\label{stock}
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+業種           & 銘柄              & ティッカー  \\ \hline
+半導体         & NVIDIA            & NVDA        \\ \hline
+医薬品         & Pfizer            & PFE         \\ \hline
+統合石油       & Exxon Mobil       & XOM         \\ \hline
+金融           & Goldman Sachs     & GS          \\ \hline
+自動車         & General Motors    & GM          \\ \hline
+防衛           & Northrop Grumman  & NOC         \\ \hline
+農業機械       & Caterpillar       & CAT         \\ \hline
+小売業  　　　 & Walmart           & WMT         \\ \hline
+製造加工       & 3M                & MMM         \\ \hline
+航空宇宙       & Boeing            & BA          \\ \hline
+\end{tabular}
+\end{table}
+
+
+\subsection{使用するテクニカル指標の説明}
+今回有名なテクニカル分析をモデル化するにあたって、機械学習に特微量として用いるテクニカル分析の手法を説明する
+\subsubsection{単純移動平均（SMA）}
+単純移動平均とは、その名の通り一定期間の価格の平均を算出し、それを結んでグラフ化したものである。これは終値をn期間分合計し、nで割ることによって求めることができる。この計算による特徴は常に直近のn期間で計算し、その計算対象の数値は1日ずつ移動することである（日足の場合）。また、単純移動平均の狙いは、「平均を取ることで価格変動を平滑化する」ことである。
+\begin{displaymath}
+SMA=\frac{1}{W}\sum\limits_{i=0}^{W-1} x(k-i)
+\end{displaymath}
+\subsubsection{指数平滑移動平均（EMA）}
+移動平均線にはさまざまな計算方法があり、単純移動平均線（Simple Moving Average：SMA）や加重移動平均線（Weighted Moving Average：WMA）は、n期間を計算対象にして求める。これらは、計算期間を過ぎれば外れていくデータがあることを意味し、それが弱点だと指摘されることもある。
+
+その弱点を補うために開発されたのが指数平滑移動平均線である。指数平滑移動平均線は全てのデータを計算対象とするもので、古いデータが計算から外れることなく、常に新しいデータを加えながら計算するのが特徴である。また、直近のデータを2倍にして計算することから、広義には加重移動平均線の仲間だといえる。
+
+指数平滑移動平均線の最初の値は、単純移動平均と同じ計算、つまりn日間の終値の合計をnで割って求めることができる。そして2日目以降は、前日EMA+平滑化定数α×（当日終値-前日EMA）で求める。なお、平滑化定数α＝2÷（n+1）である。この平滑化定数を用いた計算により、ウェイトの減衰が指数関数的になる。
+
+1日目の数式
+\begin{displaymath}
+EMA(n)=\frac{\sum\limits_{n-1}^{i=0} close(i)}{n}
+\end{displaymath}
+
+2日目の以降の数式
+\begin{displaymath}
+\alpha=\frac{2}{n+1}
+\end{displaymath}
+\begin{displaymath}
+EMA(n)=EMA(n-1)+\alpha\times\{close(0)-EMA(n-1)\}
+\end{displaymath}
+
+\subsubsection{相対力指数（RSI）}
+相場において買われすぎか売られすぎかを値上がり率の比率から求める有名な指標である。一般的には30％を下回ると売られすぎと判断し、逆に70％を超えると買われすぎたと判断する。
+\begin{displaymath}
+RSI=\frac{Avg_{sum}}{Avg_{gain}+Avg_{loss}}\times100
+\end{displaymath}
+ただし、
+
+$Avg_{sum}$:一定期間の根アリ幅の平均
+
+$Avg_{gain}$:一定期間の値上がり率の平均
+
+$Avg_{loss}$:一定期間の値下がり率の平均
+
+とする
+\subsubsection{モメンタム（MOM）}
+10日間のモメンタムは、当日の終値から10日前の終値を引くだけで求めることができ、これによって相場の短期的な動きを判断する指標である。すなわち、相場が上昇しているときの勢いが弱くなってきているのか、また相場が下降しているときの勢いが強くなってきているのかをとらえることができる。
+\subsubsection{移動平均収束拡散（MACD）}
+短期の移動平均と長期の移動平均の差をMACDという。このMACDの移動平均線をとったものがシグナルと呼ばれ、MACDがシグナルを上に突き抜けたら株価は上がっていくと予想できる。すなわち、「買い」と判断する。一方、MACDがシグナルを下に突き抜けたら「売り」と判断し、今後の株価は下がって行くと予想する。移動平均のゴールデンクロスやデッドクロスによるシグナルに先行する形で、MACDの売買シグナルが出現する特徴がある。特にここで出た短期の移動平均線と長期の移動へ金銭の差を乖離といい、その割合をとったものを乖離率という。
+\subsubsection{真の値幅の平均（ATR）}
+ATRとはTRの移動平均をとったもので、TRは当日の高値から当日の安値を引いたもの、当日高値から当日安値を引いたもの、当日高値から当日終値を引いたものそれぞれ以下の式で表すことができる。
+\begin{displaymath}
+ATR=Avg(TR)
+\end{displaymath}
+\begin{displaymath}
+TR=Max
+\begin{pmatrix}
+T_{high}-T{low}\\
+T_{high}-Y{close}\\
+Y_{close}-T_{low}
+\end{pmatrix}
+\end{displaymath}
+ただし、$T_{high}$:当日高値、$T_{low}$:当日安値、$Y_{close}$:前日終値、これらによって株価の動く大きさ、すなわちボラティリティが高いか低いかを表すことができる。つまりATRは株価の上昇、下降それぞれの局面における勢いの強さを判断することができる指標であり、ATRが上昇しているときには株価のトレンドが持続する可能性が高く、ATRが上昇から下降に転ずるときには株価のトレンドが持続する可能性が高く、ATRが上昇から下降に転ずるときには株価のトレンドが弱まり、反転する可能性があることを示している。
+\subsubsection{方向性指数（DX）}
+RSIを開発したJ.W.ワイルダー（米国）が、市場の状況を見極めるために考案した指標である。逆張りで効果を発揮するRSI、ストキャスティクスなどの指標が一方に傾くトレンド相場に役に立たないところから、その欠点をカバーするためのトレンド系の指標として開発され、トレンドの有無と強弱を探ろうとするものである。この指標の特徴は、終値の比較を無視して、当日の高安が前日の高安に比べてどちらが大きいかを見極め、相場の強弱を読むところにあり、価格の変動幅（ボラティリティ）からトレンド分析をすることが可能である。
+\subsubsection{各テクニカル指標のグラフ}
+以下の図\ref{tecnical}に各テクニカル指標のグラフの例を示す。表示区間は本研究で使用する区間(2021/1/1～2023/1/1)と同じである。また、銘柄はNVDAを使用している。
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=140mm]{technical.png}
+\caption{各テクニカル指標のグラフ}
+\label{tecnical}
+\end{center}
+\end{figure}
+
+\subsection{正規化}
+正規化（Min-Max normalization）はデータの値を最大値が1、最小値が0になるように計算する方法である。
+\begin{displaymath}
+x_{scaled}=\frac{x-x_{min}}{x_{max}-x_{min}}
+\end{displaymath}
+
+\subsection{データの分割方法}
+データの分割条件を以下に示す。
+\begin{itemize}
+\item NaNデータを除外する。
+\item トレーニングデータを$70\%$
+\item テストデータを$30\%$
+\end{itemize}
+
+\subsubsection{トレーニングデータ}
+トレーニングデータの学習は、データセットを複数のバッチに分割し、それぞれのバッチを複数回学習させる。1バッチのデータ数はウィンドウサイズで設定され、1度にモデルが処理するバッチの数をバッチサイズという。これらのパラメータを適切に調整することで、効率的な学習が可能となり、過学習や学習時間の長さを制御することができる。
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=140mm]{lerningimage.png}
+\caption{学習イメージ}
+\label{lerningimage}
+\end{center}
+\end{figure}
+\newpage
+表\ref{inputparameter}に上記で説明した入力値に関連するパラメータを示す。
+\begin{table}[H]
+\caption{入力値関連のパラメータ}
+\label{inputparameter}
+\begin{center}
+\begin{tabular}{clll}
+\hline
+パラメータ名&説明\\
+\hline
+入力期間&入力する株データの期間\\
+計算区間&テクニカル指標の計算区間\\
+ウィンドウサイズ&1バッチのデータ数\\
+バッチサイズ&1度にモデルが処理するバッチの数\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+  
+
+\subsection{LSTMモデルの定義と選択理由}
+LSTMとは、「Long Short Term Memory」を略した言葉であり、ニューラルネットワークの一つである。このLSTM自体は、ディープラーニングが流行する前から存在していた手法であり、1997年に原著論文が発表された。
+
+LSTMは、RNNという、時系列を考慮する層を改良したものであり、もともとRNNが抱えていた勾配消失問題を解消している。時系列を考慮することができるという特徴を活かし、主に自然言語処理や時系列データの予測といった場所で利用されている技術である。
+
+本研究では、このLSTMと呼ばれるアルゴリズムを使用している。その理由は、LSTMが時系列データやシーケンスデータなどのパターンを学習するのに優れており、本研究で使用する株データの学習に非常に効果的であると考えたためである。また、LSTMに関する書籍やブログが豊富に存在し、容易に情報を入手できることも選択の理由の一つである。
+
+\subsubsection{モデル構造}
+以下の図\ref{modelimage}は本研究で使用するモデルのモデル構造イメージである。
+本研究ではこの図\ref{modelimage}のように入力層と中間層、出力層の3つの層で構成されている。以下にそれぞれの層について書き記す。
+\begin{itemize}
+\item 入力層
+
+入力層に入るデータは計算したテクニカル指標と終値が入力される。入力層は入力されるデータの形に基づいて構成される。本研究では、サンプル数、時系列の長さ（ウィンドウサイズ）、各時刻の特徴数（終値やテクニカル指標のデータの個数）の3次元データとなっている。
+
+\item 中間層
+
+中間層の構成は縦のノード数×隠れ層の数によって構成される。本研究ではノード数を200、隠れ層を150と設定している。これは本研究においてこれ以上多くしても数値に影響を及ぼさない値を推定した上で決定している。推定方法はエポック値を上げて確かめていく方法である。
+
+\item 出力層
+
+出力層の構成は出力の形式によって設定する。本実験では1と設定している。これは時系列内の各時間に対する値を１つ出すためである。
+
+\end{itemize}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=140mm]{model.png}
+\caption{モデル構造イメージ}
+\label{modelimage}
+\end{center}
+\end{figure}
+
+\newpage
+
+表\ref{modelparameter}に上記で説明したモデル構造に関するパラメータを示す。
+
+\begin{table}[H]
+\caption{モデル構造に関連するパラメータ}
+\label{modelparameter}
+\begin{center}
+\begin{tabular}{clll}
+\hline
+パラメータ名&説明\\
+\hline
+エポック数&学習回数\\
+ノード数&中間層の縦のノード数\\
+隠れ層&中間層の隠れ層の数\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{モデル評価方法}
+今回のモデル評価には決定係数と平均二乗誤差の平方根を使用する。以下にそれぞれの説明を示す。
+
+\subsubsection{決定係数（R2\_SCORE）}
+決定係数はデータに対する、推定された回帰式の当てはまりの良さ（度合い）を表す。決定係数は一般に$R^2$で示され、0から1までの値をとる。1に近いほど、回帰式が実際のデータに当てはまっていることを表しており、説明変数が目的変数をよく説明していると言える。
+一般式は
+\begin{displaymath}
+R^2 = 1 - \frac{\Sigma_{i=0}^{n}(y_i - \hat{y}_i)^2}{\Sigma_{j=0}^{n}(y_j - \bar{y})^2}
+\end{displaymath}
+である。
+本実験では説明変数を予測値、目的変数を実際の終値としている。
+
+\subsubsection{平均二乗誤差の平方根（RMSE）}
+本研究ではRMSEは、モデルの予測値と実際の観測値との差の平均二乗誤差の平方根である。これは一般にモデルの予測の精度を測定し、予測値と実測値の間の誤差を定量化するために使用される。つまり、モデルがどれだけ実際のデータに近い予測を行うか示す。一般式は
+\begin{displaymath}
+RMSE = \sqrt{\frac{1}{n}\Sigma_{i=0}^{n}{\Big(y_i-\hat{y}_i)^2}}
+\end{displaymath}
+である。
+
+この式では値が小さいほどモデルの予測が正確であることを示す。
+
+\section{研究結果}
+\subsection{ウィンドウサイズの検証結果}
+以下にウィンドウサイズを短期データと長期データごとに検証した結果を示す。
+\subsubsection{短期データで銘柄ごとのスコアが最も高い結果}
+短期データで銘柄ごとのスコアが最も高い結果を図\ref{fig:BA_short_windowsize_60}から図\ref{fig:XOM_short_windowsize_30}に示す。
+
+各図内にある左側の図は実際の価格と予測価格のグラフを示しており、右側の図はその散布図を示している。この散布図は黒色の直線に予測プロットが集まっていれば予測精度は高いとされ、逆に散らばっていると予測精度は低いとされる。さらに、精度の良し悪しは決定係数（R2\_SCORE）と平均二乗誤差の平方根（RSME）で数値化している。決定係数（R2\_SCORE）は1に近ければ予測精度が高いとされ、逆に平均二乗誤差の平方根（RSME）は1に近ければ予測精度が低いとされる。
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/BA_60_200_150_25.png}
+\caption{BA ウィンドウサイズ=60}
+\label{fig:BA_short_windowsize_60}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/CAT_10_200_150_25.png}
+\caption{CAT ウィンドウサイズ=10}
+\label{fig:CAT_short_windowsize_10}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/GM_60_200_150_25.png}
+\caption{GM ウィンドウサイズ=60}
+\label{fig:GM_short_windowsize_60}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/GS_40_200_150_25.png}
+\caption{GS ウィンドウサイズ=40}
+\label{fig:GS_short_windowsize_40}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/MMM_130_200_150_25.png}
+\caption{MMM ウィンドウサイズ=130}
+\label{fig:MMM_short_windowsize_130}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/NOC_60_200_150_25.png}
+\caption{NOC ウィンドウサイズ=60}
+\label{fig:NOC_short_windowsize_60}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/NVDA_10_200_150_25.png}
+\caption{NVDA ウィンドウサイズ=10}
+\label{fig:NVDA_short_windowsize_10}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/PFE_10_200_150_25.png}
+\caption{PFE ウィンドウサイズ=10}
+\label{fig:PFE_short_windowsize_10}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/WMT_60_200_150_25.png}
+\caption{WMT ウィンドウサイズ=60}
+\label{fig:WMT_short_windowsize_60}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_windowsize/XOM_30_200_150_25.png}
+\caption{XOM ウィンドウサイズ=30}
+\label{fig:XOM_short_windowsize_30}
+\end{center}
+\end{figure}
+\subsubsection{短期データで銘柄ごとのスコアが最も低い結果}
+短期データで銘柄ごとのスコアが最も低い結果を図\ref{BA_short_windowsize_90}から図\ref{XOM_short_windowsize_130}に示す。
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/BA_90_200_150_25.png}
+\caption{BA ウィンドウサイズ=90}
+\label{BA_short_windowsize_90}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/CAT_130_200_150_25.png}
+\caption{CAT ウィンドウサイズ=130}
+\label{CAT_short_windowsize_130}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/GM_120_200_150_25.png}
+\caption{GM ウィンドウサイズ=120}
+\label{GM_short_windowsize_120}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/GS_100_200_150_25.png}
+\caption{GS ウィンドウサイズ=100}
+\label{GS_short_windowsize_100}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/MMM_110_200_150_25.png}
+\caption{MMM ウィンドウサイズ=110}
+\label{MMM_short_windowsize_110}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/NOC_120_200_150_25.png}
+\caption{NOC ウィンドウサイズ=120}
+\label{NOC_short_windowsize_120}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/NVDA_120_200_150_25.png}
+\caption{NVDA ウィンドウサイズ=120}
+\label{NVDA_short_windowsize_120}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/PFE_130_200_150_25.png}
+\caption{PFE ウィンドウサイズ=130}
+\label{PFE_short_windowsize_130}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/WMT_130_200_150_25.png}
+\caption{WMT ウィンドウサイズ=130}
+\label{WMT_short_windowsize_130}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_windowsize/XOM_130_200_150_25.png}
+\caption{XOM ウィンドウサイズ=130}
+\label{XOM_short_windowsize_130}
+\end{center}
+\end{figure}
+
+\newpage
+\subsubsection{短期データのR2\_SCOREとRMSE}
+以下の表\ref{inputparameter_short_windowsize}にモデル構築と学習の設定値を示す。
+\begin{table}[H]
+\caption{入力値関連のパラメータ}
+\label{inputparameter_short_windowsize}
+\begin{center}
+\begin{tabular}{clll}
+\hline
+パラメータ名&説明\\
+\hline
+入力期間&2021/1/1～2022/1/1\\
+計算区間&25\\
+バッチサイズ&1\\
+エポック数&50\\
+ノード数&150\\
+隠れ層&200\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+以下の表\ref{R2_windowsize_short}と表\ref{RSME_windowsize_short}に本研究で検証した短期データのR2\_SCOREとRMSEを銘柄ごとに示す。
+\begin{itemize}
+\item R2\_SCORE
+\begin{table}[htbp]
+\centering
+\caption{R2\_SCORE}
+\label{R2_windowsize_short}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+WIN & BA     & CAT    & GM     & GS     & MMM    & NOC    & NVDA   & PFE    & WMT    & XOM    \\ \hline
+10  & 0.0283 & 0.4141 & 0.6235 & 0.5537 & -3.9375 & -0.2551 & 0.866  & 0.7501 & 0.5562 & 0.1062 \\ \hline
+20  & 0.4538 & 0.3422 & 0.6541 & 0.5481 & -3.3084 & 0.1696 & 0.8462 & 0.5277 & 0.6128 & 0.5357 \\ \hline
+30  & -0.3543 & 0.1154 & 0.6255 & 0.4964 & -8.028 & 0.1543 & 0.8052 & 0.5022 & 0.5728 & 0.6057 \\ \hline
+40  & 0.2496 & 0.294 & 0.5644 & 0.5865 & -6.2197 & 0.3463 & 0.8623 & 0.6948 & 0.4732 & 0.571 \\ \hline
+50  & 0.251 & 0.3214 & 0.6649 & 0.3934 & -4.1979 & 0.1263 & 0.7853 & 0.6319 & 0.4734 & 0.2882 \\ \hline
+60  & 0.475 & 0.3809 & 0.6903 & 0.5478 & -6.995 & 0.5467 & 0.7304 & 0.2151 & 0.6916 & 0.0667 \\ \hline
+70  & 0.0332 & 0.2009 & -0.5762 & 0.5672 & -2.7927 & 0.4461 & 0.8064 & 0.4589 & 0.316 & -0.5748 \\ \hline
+80  & 0.0078 & 0.1943 & -0.5255 & -0.7271 & -8.5203 & 0.1299 & 0.8433 & 0.5042 & 0.08 & -4.0604 \\ \hline
+90  & -0.4757 & 0.0656 & -1.6853 & -0.4631 & -4.47 & 0.1017 & 0.4745 & 0.3644 & 0.0529 & -9.8535 \\ \hline
+100 & -0.3496 & 0.1984 & -0.1576 & -1.4842 & -7.0522 & 0.4056 & -0.35 & 0.033 & 0.151 & -2.095 \\ \hline
+110 & 0.0573 & 0.2633 & -1.8629 & 0.3035 & -13.2187 & -0.0617 & -1.0371 & -0.2704 & 0.5956 & -4.0932 \\ \hline
+120 & -0.1725 & 0.0369 & -7.6895 & 0.4627 & -2.0444 & -0.2787 & -1.9079 & -0.1208 & -0.3111 & -11.771 \\ \hline
+130 & -0.1406 & -0.5665 & -4.3152 & 0.2503 & -0.5139 & -0.0034 & -1.3339 & -0.3704 & -1.1654 & -14.9624 \\ \hline
+\end{tabular}
+\end{table}
+\newpage
+\item RMSE
+\begin{table}[htbp]
+\centering
+\caption{RMSE}
+\label{RSME_windowsize_short}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+WIN & BA    & CAT   & GM    & GS    & MMM   & NOC   & NVDA  & PFE   & WMT   & XOM   \\ \hline
+10  & 0.1318 & 0.0733 & 0.0997 & 0.0818 & 0.2052 & 0.1683 & 0.0698 & 0.1164 & 0.1277 & 0.1184 \\ \hline
+20  & 0.0988 & 0.0777 & 0.0956 & 0.0823 & 0.1917 & 0.1369 & 0.0748 & 0.16   & 0.1193 & 0.0854 \\ \hline
+30  & 0.1556 & 0.0901 & 0.0994 & 0.0869 & 0.2775 & 0.1381 & 0.0842 & 0.1643 & 0.1253 & 0.0787 \\ \hline
+40  & 0.1158 & 0.0805 & 0.1072 & 0.0787 & 0.2481 & 0.1214 & 0.0708 & 0.1286 & 0.1391 & 0.0821 \\ \hline
+50  & 0.1157 & 0.0789 & 0.094  & 0.0953 & 0.2105 & 0.1404 & 0.0884 & 0.1413 & 0.1391 & 0.1057 \\ \hline
+60  & 0.0969 & 0.0754 & 0.0904 & 0.0823 & 0.2611 & 0.1011 & 0.099  & 0.2063 & 0.1065 & 0.121  \\ \hline
+70  & 0.1315 & 0.0856 & 0.204  & 0.0805 & 0.1798 & 0.1118 & 0.0839 & 0.1713 & 0.1585 & 0.1572 \\ \hline
+80  & 0.1332 & 0.086  & 0.2007 & 0.1608 & 0.2849 & 0.1401 & 0.0755 & 0.1639 & 0.1838 & 0.2818 \\ \hline
+90  & 0.1624 & 0.0926 & 0.2662 & 0.148  & 0.216  & 0.1423 & 0.1383 & 0.1856 & 0.1865 & 0.4127 \\ \hline
+100 & 0.1553 & 0.0858 & 0.1748 & 0.1929 & 0.262  & 0.1158 & 0.2216 & 0.229  & 0.1766 & 0.2204 \\ \hline
+110 & 0.1298 & 0.0822 & 0.2749 & 0.1021 & 0.3482 & 0.1548 & 0.2722 & 0.2624 & 0.1219 & 0.2827 \\ \hline
+120 & 0.1448 & 0.094  & 0.4789 & 0.0897 & 0.1611 & 0.1698 & 0.3253 & 0.2465 & 0.2195 & 0.4477 \\ \hline
+130 & 0.1428 & 0.1199 & 0.3745 & 0.106  & 0.1136 & 0.1504 & 0.2914 & 0.2726 & 0.2821 & 0.5005 \\ \hline
+\end{tabular}
+\end{table}
+\end{itemize}
+\newpage
+\subsubsection{長期データで銘柄ごとのスコアが最も高い結果}
+長期データで銘柄ごとのスコアが最も高い結果を図\ref{fig:BA_80_long_windowsize_80}から図\ref{fig:XOM_20_long_windowsize_80}に示す。
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/BA_80_200_150_25.png}
+\caption{BA ウィンドウサイズ=80}
+\label{fig:BA_80_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/CAT_20_200_150_25.png}
+\caption{CAT ウィンドウサイズ=20}
+\label{fig:CAT_20_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/GM_120_200_150_25.png}
+\caption{GM ウィンドウサイズ=120}
+\label{fig:GM_120_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/GS_20_200_150_25.png}
+\caption{GS ウィンドウサイズ=20}
+\label{fig:GS_20_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/MMM_10_200_150_25.png}
+\caption{MMM ウィンドウサイズ=10}
+\label{fig:MMM_10_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/NOC_80_200_150_25.png}
+\caption{NOC ウィンドウサイズ=80}
+\label{fig:NOC_80_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/NVDA_40_200_150_25.png}
+\caption{NVDA ウィンドウサイズ=40}
+\label{fig:NVDA_40_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/PFE_60_200_150_25.png}
+\caption{PFE ウィンドウサイズ=60}
+\label{fig:PFE_60_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/WMT_10_200_150_25.png}
+\caption{WMT ウィンドウサイズ=10}
+\label{fig:WMT_10_long_windowsize_80}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_windowsize/XOM_20_200_150_25.png}
+\caption{XOM ウィンドウサイズ=20}
+\label{fig:XOM_20_long_windowsize_80}
+\end{figure}
+\subsubsection{長期データで銘柄ごとのスコアが最も低い結果}
+長期データで銘柄ごとのスコアが最も低い結果を図\ref{BA_long_windowsize_130}から図\ref{XOM_long_windowsize_110}に示す。
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/BA_130_200_150_25.png}
+\caption{BA ウィンドウサイズ=130}
+\label{BA_long_windowsize_130}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/CAT_100_200_150_25.png}
+\caption{CAT ウィンドウサイズ=100}
+\label{CAT_long_windowsize_100}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/GM_60_200_150_25.png}
+\caption{GM ウィンドウサイズ=60}
+\label{GM_long_windowsize_60}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/GS_110_200_150_25.png}
+\caption{GS ウィンドウサイズ=110}
+\label{GS_long_windowsize_110}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/MMM_50_200_150_25.png}
+\caption{MMM ウィンドウサイズ=50}
+\label{MMM_long_windowsize_50}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/NOC_60_200_150_25.png}
+\caption{NOC ウィンドウサイズ=60}
+\label{NOC_long_windowsize_60}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/NVDA_130_200_150_25.png}
+\caption{NVDA ウィンドウサイズ=130}
+\label{NVDA_long_windowsize_130}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/PFE_40_200_150_25.png}
+\caption{PFE ウィンドウサイズ=40}
+\label{PFE_long_windowsize_40}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/WMT_50_200_150_25.png}
+\caption{WMT ウィンドウサイズ=50}
+\label{WMT_long_windowsize_50}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_windowsize/XOM_110_200_150_25.png}
+\caption{XOM ウィンドウサイズ=110}
+\label{XOM_long_windowsize_110}
+\end{center}
+\end{figure}
+
+\subsubsection{長期データのR2\_SCOREとRMSE}
+以下の表\ref{inputparameter_long_windowsize}にモデル構築と学習の設定値を示す。
+\begin{table}[H]
+\caption{入力値関連のパラメータ}
+\label{inputparameter_long_windowsize}
+\begin{center}
+\begin{tabular}{clll}
+\hline
+パラメータ名&説明\\
+\hline
+入力期間&2021/1/1～2023/1/1\\
+計算区間&25\\
+バッチサイズ&1\\
+エポック数&50\\
+ノード数&150\\
+隠れ層&200\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+以下の表\ref{R2_windowsize_long}と表\ref{RMSE_windowsize_long}に本研究で検証した長期データのR2\_SCOREとRMSEを銘柄ごとに示す。
+\begin{itemize}
+\item R2\_SCORE
+\begin{table}[htbp]
+\centering
+\caption{R2\_SCORE}
+\label{R2_windowsize_long}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+WIN & BA    & CAT   & GM    & GS    & MMM   & NOC   & NVDA  & PFE   & WMT   & XOM   \\ \hline
+10  & 0.8516 & 0.8881 & 0.4911 & 0.8649 & 0.7568 & 0.5873 & 0.8697 & 0.894  & 0.9197 & 0.8489 \\ \hline
+20  & 0.9035 & 0.9128 & 0.4929 & 0.921  & 0.7486 & 0.5382 & 0.8462 & 0.7524 & 0.8949 & 0.9098 \\ \hline
+30  & 0.907  & 0.8602 & 0.491  & 0.8662 & -0.1135 & 0.0846 & 0.843  & 0.8024 & 0.9145 & 0.8962 \\ \hline
+40  & 0.8037 & 0.8708 & 0.1711 & 0.8894 & -0.6396 & 0.0015 & 0.8929 & 0.5988 & 0.9    & 0.8819 \\ \hline
+50  & 0.8643 & 0.8856 & 0.6829 & 0.8768 & -26.7302 & 0.5071 & 0.8172 & 0.9042 & 0.5372 & 0.8921 \\ \hline
+60  & 0.8767 & 0.8594 & 0.0685 & 0.8582 & -1.351  & -0.3141 & 0.7925 & 0.907  & 0.9068 & 0.8164 \\ \hline
+70  & 0.6484 & 0.8683 & 0.1875 & 0.9038 & -0.6868 & 0.0346 & 0.8557 & 0.7086 & 0.8761 & 0.9017 \\ \hline
+80  & 0.9127 & 0.9108 & 0.2585 & 0.8843 & -0.3192 & 0.5061 & 0.6356 & 0.7609 & 0.9014 & 0.7627 \\ \hline
+90  & 0.8638 & 0.8793 & 0.586  & 0.8701 & -0.2599 & 0.3992 & 0.8425 & 0.705  & 0.8163 & 0.8359 \\ \hline
+100 & 0.8299 & 0.7223 & 0.4265 & 0.8825 & -0.2288 & -0.1142 & 0.8283 & 0.8601 & 0.8869 & 0.7281 \\ \hline
+110 & 0.7769 & 0.7945 & 0.6843 & 0.8203 & -10.3215 & 0.1648 & 0.677  & 0.6602 & 0.8622 & 0.5132 \\ \hline
+120 & 0.8919 & 0.8519 & 0.7431 & 0.8752 & -3.3701 & 0.0926 & 0.7864 & 0.7763 & 0.7751 & 0.9031 \\ \hline
+130 & 0.5165 & 0.7644 & 0.297  & 0.8492 & -3.2752 & 0.0637 & -0.0459 & 0.7846 & 0.8207 & 0.8993 \\ \hline
+\end{tabular}
+\end{table}
+\newpage
+\item RMSE
+\begin{table}[htbp]
+\centering
+\caption{RMSE}
+\label{RMSE_windowsize_long}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+WIN & BA    & CAT   & GM    & GS    & MMM   & NOC   & NVDA  & PFE   & WMT   & XOM   \\ \hline
+10  & 0.0469 & 0.0986 & 0.0608 & 0.0731 & 0.0515 & 0.074  & 0.0337 & 0.037  & 0.0585 & 0.0593 \\ \hline
+20  & 0.0378 & 0.087  & 0.0607 & 0.0559 & 0.0524 & 0.0783 & 0.0366 & 0.0566 & 0.067  & 0.0458 \\ \hline
+30  & 0.0371 & 0.1102 & 0.0608 & 0.0728 & 0.1102 & 0.1102 & 0.037  & 0.0506 & 0.0604 & 0.0491 \\ \hline
+40  & 0.0539 & 0.1059 & 0.0776 & 0.0662 & 0.1338 & 0.1151 & 0.0305 & 0.0721 & 0.0653 & 0.0524 \\ \hline
+50  & 0.0448 & 0.0997 & 0.048  & 0.0698 & 0.5502 & 0.0809 & 0.0399 & 0.0352 & 0.1406 & 0.0501 \\ \hline
+60  & 0.0427 & 0.1105 & 0.0822 & 0.0749 & 0.1602 & 0.132  & 0.0425 & 0.0347 & 0.0631 & 0.0653 \\ \hline
+70  & 0.0721 & 0.1069 & 0.0768 & 0.0617 & 0.1357 & 0.1132 & 0.0354 & 0.0614 & 0.0727 & 0.0478 \\ \hline
+80  & 0.0359 & 0.088  & 0.0734 & 0.0677 & 0.12   & 0.0809 & 0.0563 & 0.0556 & 0.0649 & 0.0743 \\ \hline
+90  & 0.0449 & 0.1024 & 0.0548 & 0.0717 & 0.1173 & 0.0893 & 0.037  & 0.0618 & 0.0886 & 0.0618 \\ \hline
+100 & 0.0502 & 0.1553 & 0.0645 & 0.0682 & 0.1158 & 0.1216 & 0.0387 & 0.0425 & 0.0695 & 0.0795 \\ \hline
+110 & 0.0575 & 0.1336 & 0.0479 & 0.0843 & 0.3515 & 0.1052 & 0.053  & 0.0663 & 0.0767 & 0.1064 \\ \hline
+120 & 0.04   & 0.1134 & 0.0432 & 0.0703 & 0.2184 & 0.1097 & 0.0431 & 0.0538 & 0.098  & 0.0475 \\ \hline
+130 & 0.0846 & 0.1431 & 0.0714 & 0.0773 & 0.216  & 0.1114 & 0.0954 & 0.0528 & 0.0875 & 0.0484 \\ \hline
+\end{tabular}
+\end{table}
+\end{itemize}
+\newpage
+\subsection{計算区間の検証結果}
+以下に計算区間の検証結果を短期データと長期データごとに示す。
+\subsubsection{短期データで銘柄ごとのスコアが最も高い結果}
+短期データで銘柄ごとのスコアが最も高い結果を図\ref{fig:BA_short_term_35}から図\ref{fig:XOM_short_term_35}に示す。
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/BA_35_200_150_30.png}
+\caption{BA term=35}
+\label{fig:BA_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/CAT_35_200_150_95.png}
+\caption{CAT term=35}
+\label{fig:CAT_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/GM_35_200_150_15.png}
+\caption{GM term=35}
+\label{fig:GM_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/GS_35_200_150_10.png}
+\caption{GS term=35}
+\label{fig:GS_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/MMM_35_200_150_115.png}
+\caption{MMM term=35}
+\label{fig:MMM_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/NOC_35_200_150_65.png}
+\caption{NOC term=35}
+\label{fig:NOC_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/NVDA_35_200_150_10.png}
+\caption{NVDA term=35}
+\label{fig:NVDA_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/PFE_35_200_150_10.png}
+\caption{PFE term=35}
+\label{fig:PFE_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/WMT_35_200_150_90.png}
+\caption{WMT term=35}
+\label{fig:WMT_short_term_35}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Best_of_short_term/XOM_35_200_150_10.png}
+\caption{XOM term=35}
+\label{fig:XOM_short_term_35}
+\end{center}
+\end{figure}
+\subsubsection{短期データで銘柄ごとのスコアが最も低い結果}
+短期データで銘柄ごとのスコアが最も低い結果を図\ref{BA_short_term_120}から図\ref{XOM_short_term_55}に示す。
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/BA_35_200_150_120.png}
+\caption{BA term=120}
+\label{BA_short_term_120}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/CAT_35_200_150_110.png}
+\caption{CAT term=110}
+\label{CAT_short_term_110}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/GM_35_200_150_90.png}
+\caption{GM term=90}
+\label{GM_short_term_90}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/GS_35_200_150_120.png}
+\caption{GS term=120}
+\label{GS_short_term_120}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/MMM_35_200_150_25.png}
+\caption{MMM term=25}
+\label{MMM_short_term_25}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/NOC_35_200_150_105.png}
+\caption{NOC term=105}
+\label{NOC_short_term_105}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/NVDA_35_200_150_95.png}
+\caption{NVDA term=95}
+\label{NVDA_short_term_95}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/PFE_35_200_150_100.png}
+\caption{PFE term=100}
+\label{PFE_short_term_100}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/WMT_35_200_150_115.png}
+\caption{WMT term=115}
+\label{WMT_short_term_115}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_short_term/XOM_35_200_150_55.png}
+\caption{XOM term=55}
+\label{XOM_short_term_55}
+\end{center}
+\end{figure}
+
+
+\subsubsection{短期データのR2\_SCOREとRMSE}
+以下の表\ref{inputparameter_short_term}にモデル構築と学習の設定値を示す。
+\begin{table}[H]
+\caption{入力値関連のパラメータ}
+\label{inputparameter_short_term}
+\begin{center}
+\begin{tabular}{clll}
+\hline
+パラメータ名&説明\\
+\hline
+入力期間&2021/1/1～2022/1/1\\
+ウィンドウサイズ&35\\
+バッチサイズ&1\\
+エポック数&50\\
+ノード数&150\\
+隠れ層&200\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+以下の表\ref{R2_term_short}と表\ref{RMSE_term_short}に本研究で検証した短期データのR2\_SCOREとRMSEを銘柄ごとに示す。
+\begin{itemize}
+\item R2\_SCORE
+\begin{table}[htbp]
+\centering
+\caption{R2\_SCORE}
+\label{R2_term_short}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+term & BA    & CAT    & GM     & GS     & MMM    & NOC    & NVDA   & PFE    & WMT    & XOM    \\ \hline
+10   & 0.6744 & -0.0386 & 0.6079 & 0.7211 & -4.3914 & 0.5167 & 0.8674 & 0.7992 & 0.6741 & 0.6528 \\ \hline
+15   & 0.6658 & 0.0304  & 0.667  & 0.7067 & -7.5609 & 0.2907 & 0.8575 & 0.5276 & 0.6904 & 0.4486 \\ \hline
+20   & 0.6585 & 0.0319  & 0.6368 & 0.3887 & -8.0643 & 0.5198 & 0.652  & 0.4971 & 0.6469 & 0.4955 \\ \hline
+25   & 0.6333 & 0.336   & 0.6487 & 0.5177 & -8.1766 & 0.073  & 0.7927 & 0.584  & 0.478  & 0.6269 \\ \hline
+30   & 0.6759 & 0.105   & 0.576  & 0.4324 & -6.932  & 0.2161 & 0.7799 & 0.7414 & 0.5699 & -0.2983 \\ \hline
+35   & 0.5872 & 0.0147  & 0.5407 & 0.4364 & -5.6437 & 0.16   & 0.7141 & 0.6535 & 0.5317 & 0.5879 \\ \hline
+40   & 0.3218 & 0.0066  & 0.6381 & 0.2746 & -3.0211 & 0.5398 & 0.7359 & 0.2108 & 0.5279 & 0.0438 \\ \hline
+45   & 0.0566 & 0.1004  & 0.6524 & 0.2652 & -2.8637 & 0.4393 & 0.5473 & 0.439  & 0.6165 & -0.135 \\ \hline
+50   & -0.0071 & -0.0111 & 0.5136 & 0.4053 & -5.6303 & 0.7083 & 0.5261 & 0.2713 & 0.6926 & -2.6771 \\ \hline
+55   & -0.0181 & -0.1697 & 0.304  & 0.4505 & -3.0909 & 0.8132 & 0.5735 & 0.3852 & 0.5599 & -3.666  \\ \hline
+60   & -0.2507 & -1.3778 & 0.5247 & -0.3822 & -1.8485 & 0.6712 & 0.1212 & 0.3757 & 0.4834 & -1.9083 \\ \hline
+65   & 0.0238  & -0.705  & 0.368  & -0.2163 & -3.0926 & 0.8472 & 0.1979 & 0.1879 & 0.6991 & -2.3622 \\ \hline
+70   & -0.0449 & 0.0909  & 0.2205 & -2.2537 & -1.3692 & 0.7989 & -1.1719 & -0.0684 & 0.6615 & -0.9876 \\ \hline
+75   & -0.3064 & 0.1662  & 0.6193 & -1.7705 & -1.4689 & 0.7045 & -3.0907 & 0.1736 & 0.6417 & -0.6229 \\ \hline
+80   & -0.5741 & -1.3888 & 0.356  & -0.7352 & -0.8739 & 0.5204 & -2.1629 & -0.9718 & 0.7137 & -0.843  \\ \hline
+85   & -0.0265 & 0.2985  & 0.5604 & -0.72   & -1.1839 & 0.4143 & -6.7084 & -0.49   & 0.6574 & -0.4659 \\ \hline
+90   & -0.1499 & 0.2969  & -0.6251 & -2.7828 & -1.4345 & 0.7674 & -4.435  & -1.9004 & 0.7276 & -0.7519 \\ \hline
+95   & -0.1847 & 0.3137  & 0.1459 & -1.2959 & -0.6871 & 0.7391 & -20.3526 & -2.196  & 0.5935 & -2.9381 \\ \hline
+100  & -0.2483 & 0.228   & 0.1521 & -4.3452 & -1.0339 & 0.6098 & -8.2562 & -4.156  & 0.7292 & -2.4506 \\ \hline
+105  & -0.2994 & -0.4984 & -0.5038 & -5.5589 & -0.5941 & 0.1042 & -20.7742 & -2.5944 & 0.5777 & -0.2834 \\ \hline
+110  & -0.3744 & -4.2925 & -0.4688 & -2.0995 & -0.5407 & 0.6223 & -1.6179 & -3.3776 & 0.6579 & 0.0991  \\ \hline
+115  & -0.5459 & -2.7282 & -0.2848 & -5.1232 & -0.3813 & 0.4825 & -7.3405 & -2.5387 & -0.0323 & -1.4582 \\ \hline
+120  & -1.1503 & -2.6351 & 0.3734 & -5.8569 & -0.7974 & 0.7372 & -4.1139 & -2.2823 & 0.3949 & -0.5132 \\ \hline
+125  & -1.4338 & -2.8653 & 0.0078 & -6.4382 & -1.073  & 0.7256 & -10.7569 & -1.0963 & -0.1137 & -4.2596 \\ \hline
+\end{tabular}
+\end{table}
+\newpage
+\item RMSE
+\begin{table}[htbp]
+\centering
+\caption{RMSE}
+\label{RMSE_term_short}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+term & BA    & CAT   & GM    & GS    & MMM   & NOC   & NVDA  & PFE   & WMT   & XOM   \\ \hline
+10   & 0.0772 & 0.1003 & 0.1102 & 0.0585 & 0.2109 & 0.0959 & 0.0709 & 0.1011 & 0.105  & 0.0722 \\ \hline
+15   & 0.0778 & 0.0974 & 0.0996 & 0.0655 & 0.2665 & 0.1176 & 0.0726 & 0.1552 & 0.1029 & 0.0949 \\ \hline
+20   & 0.0784 & 0.0954 & 0.0994 & 0.0974 & 0.2767 & 0.1027 & 0.1105 & 0.16   & 0.1092 & 0.0884 \\ \hline
+25   & 0.081  & 0.0781 & 0.0963 & 0.085  & 0.2797 & 0.1446 & 0.0869 & 0.1502 & 0.1385 & 0.0765 \\ \hline
+30   & 0.0808 & 0.0872 & 0.1024 & 0.0928 & 0.2643 & 0.1452 & 0.0862 & 0.1215 & 0.1295 & 0.143  \\ \hline
+35   & 0.0956 & 0.0912 & 0.1068 & 0.093  & 0.2439 & 0.1646 & 0.0963 & 0.1401 & 0.1579 & 0.0804 \\ \hline
+40   & 0.1193 & 0.089  & 0.0964 & 0.1064 & 0.1923 & 0.1327 & 0.089  & 0.2134 & 0.1786 & 0.1241 \\ \hline
+45   & 0.1473 & 0.0806 & 0.0953 & 0.1107 & 0.1892 & 0.1698 & 0.1171 & 0.1783 & 0.1608 & 0.1356 \\ \hline
+50   & 0.1519 & 0.0775 & 0.1145 & 0.1051 & 0.2514 & 0.1288 & 0.1117 & 0.2085 & 0.1429 & 0.2462 \\ \hline
+55   & 0.1533 & 0.0835 & 0.1381 & 0.1015 & 0.1975 & 0.1018 & 0.1022 & 0.1992 & 0.1714 & 0.2799 \\ \hline
+60   & 0.1712 & 0.1197 & 0.1152 & 0.1957 & 0.1645 & 0.1315 & 0.1352 & 0.1942 & 0.1887 & 0.2248 \\ \hline
+65   & 0.1519 & 0.1023 & 0.1338 & 0.1858 & 0.1963 & 0.0964 & 0.1222 & 0.2183 & 0.1452 & 0.2432 \\ \hline
+70   & 0.1595 & 0.0759 & 0.1514 & 0.3014 & 0.1548 & 0.0989 & 0.1777 & 0.2421 & 0.155  & 0.1907 \\ \hline
+75   & 0.1798 & 0.0745 & 0.1067 & 0.2744 & 0.157  & 0.1098 & 0.2313 & 0.2088 & 0.1579 & 0.1726 \\ \hline
+80   & 0.2016 & 0.1243 & 0.1369 & 0.2102 & 0.1375 & 0.1281 & 0.1957 & 0.3076 & 0.1411 & 0.1802 \\ \hline
+85   & 0.172  & 0.0681 & 0.1104 & 0.2049 & 0.1495 & 0.1426 & 0.3112 & 0.2628 & 0.1539 & 0.1607 \\ \hline
+90   & 0.192  & 0.1042 & 0.2039 & 0.2872 & 0.1751 & 0.0904 & 0.2355 & 0.3422 & 0.1338 & 0.1706 \\ \hline
+95   & 0.1968 & 0.1162 & 0.1456 & 0.2046 & 0.1463 & 0.0955 & 0.4595 & 0.3502 & 0.1607 & 0.2527 \\ \hline
+100  & 0.2058 & 0.1264 & 0.145  & 0.3076 & 0.1596 & 0.1169 & 0.2846 & 0.4061 & 0.1245 & 0.2351 \\ \hline
+105  & 0.2499 & 0.1777 & 0.1951 & 0.3323 & 0.1402 & 0.1794 & 0.4407 & 0.3397 & 0.1496 & 0.1401 \\ \hline
+110  & 0.2518 & 0.306  & 0.1976 & 0.214  & 0.1361 & 0.1195 & 0.1569 & 0.3635 & 0.124  & 0.1009 \\ \hline
+115  & 0.2665 & 0.2574 & 0.1874 & 0.3004 & 0.1282 & 0.1415 & 0.2821 & 0.33   & 0.2077 & 0.1631 \\ \hline
+120  & 0.3064 & 0.2445 & 0.1298 & 0.3979 & 0.1392 & 0.1026 & 0.2414 & 0.3302 & 0.1455 & 0.1216 \\ \hline
+125  & 0.2931 & 0.249  & 0.1616 & 0.3953 & 0.1415 & 0.1059 & 0.3711 & 0.2595 & 0.1907 & 0.2159 \\ \hline
+\end{tabular}
+\end{table}
+\end{itemize}
+\newpage
+\subsubsection{長期データで銘柄ごとのスコアが最も高い結果}
+長期データで銘柄ごとのスコアが最も高い結果を図\ref{fig:BA_long_term_35}から図\ref{fig:XOM_long_term_35}に示す。
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/BA_35_200_150_10.png}
+\caption{BA term=35}
+\label{fig:BA_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/CAT_35_200_150_65.png}
+\caption{CAT term=35}
+\label{fig:CAT_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/GM_35_200_150_10.png}
+\caption{GM term=35}
+\label{fig:GM_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/GS_35_200_150_85.png}
+\caption{GS term=35}
+\label{fig:GS_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/MMM_35_200_150_45.png}
+\caption{MMM term=35}
+\label{fig:MMM_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/NOC_35_200_150_10.png}
+\caption{NOC term=35}
+\label{fig:NOC_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/NVDA_35_200_150_90.png}
+\caption{NVDA term=35}
+\label{fig:NVDA_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/PFE_35_200_150_95.png}
+\caption{PFE term=35}
+\label{fig:PFE_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/WMT_35_200_150_25.png}
+\caption{WMT term=35}
+\label{fig:WMT_long_term_35}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.48]{figure_for_report/Best_of_long_term/XOM_35_200_150_25.png}
+\caption{XOM term=35}
+\label{fig:XOM_long_term_35}
+\end{figure}
+\subsubsection{長期データで銘柄ごとのスコアが最も低い結果}
+長期データで銘柄ごとのスコアが最も低い結果を図\ref{BA_long_term_95}から図\ref{XOM_long_term_110}に示す。
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/BA_35_200_150_95.png}
+\caption{BA term=95}
+\label{BA_long_term_95}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/CAT_35_200_150_80.png}
+\caption{CAT term=80}
+\label{CAT_long_term_80}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/GM_35_200_150_90.png}
+\caption{GM term=90}
+\label{GM_long_term_90}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/GS_35_200_150_60.png}
+\caption{GS term=60}
+\label{GS_long_term_60}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/MMM_35_200_150_25.png}
+\caption{MMM term=25}
+\label{MMM_long_term_25}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/NOC_35_200_150_85.png}
+\caption{NOC term=85}
+\label{NOC_long_term_85}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/NVDA_35_200_150_110.png}
+\caption{NVDA term=110}
+\label{NVDA_long_term_110}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/PFE_35_200_150_10.png}
+\caption{PFE term=10}
+\label{PFE_long_term_10}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/WMT_35_200_150_90.png}
+\caption{WMT term=90}
+\label{WMT_long_term_90}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{figure_for_report/Worst_of_long_term/XOM_35_200_150_110.png}
+\caption{XOM term=110}
+\label{XOM_long_term_110}
+\end{center}
+\end{figure}
+
+
+\newpage
+\subsubsection{長期データのR2\_SCOREとRMSE}
+以下の表\ref{inputparameter_long_term}にモデル構築と学習の設定値を示す。
+\begin{table}[H]
+\caption{入力値関連のパラメータ}
+\label{inputparameter_long_term}
+\begin{center}
+\begin{tabular}{clll}
+\hline
+パラメータ名&説明\\
+\hline
+入力期間&2021/1/1～2023/1/1\\
+ウィンドウサイズ&35\\
+バッチサイズ&1\\
+エポック数&50\\
+ノード数&150\\
+隠れ層&200\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+以下の表\ref{R2_term_long}と表\ref{RMSE_term_long}に本研究で検証した短長期データのR2\_SCOREとRMSEを銘柄ごとに示す。
+\begin{itemize}
+\item R2\_SCORE  
+\begin{table}[htbp]
+\centering
+\caption{R2\_SCORE}
+\label{R2_term_long}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+term & BA    & CAT   & GM    & GS    & MMM   & NOC   & NVDA  & PFE    & WMT   & XOM   \\ \hline
+10   & 0.9024 & 0.8605 & 0.7519 & 0.8758 & 0.5551 & 0.8033 & 0.8637 & -1.2025 & 0.9186 & 0.9014 \\ \hline
+15   & 0.8797 & 0.8695 & 0.4866 & 0.8792 & 0.0739 & 0.6036 & 0.8808 & 0.8343  & 0.8808 & 0.7616 \\ \hline
+20   & 0.8434 & 0.899  & -0.0062 & 0.8976 & -9.5124 & 0.2775 & 0.896  & 0.9192  & 0.8551 & 0.8076 \\ \hline
+25   & 0.8416 & 0.7969 & 0.5665 & 0.8537 & -48.1032 & 0.029  & 0.8786 & 0.7026  & 0.9124 & 0.9109 \\ \hline
+30   & 0.8116 & 0.8947 & 0.3513 & 0.8513 & -0.1826 & 0.5216 & 0.7803 & 0.927   & 0.7913 & 0.8405 \\ \hline
+35   & 0.7001 & 0.9401 & 0.5347 & 0.8677 & -0.0089 & -0.5116 & 0.8932 & 0.8923  & 0.8913 & 0.8361 \\ \hline
+40   & 0.8562 & 0.7932 & 0.4692 & 0.8417 & 0.1327 & 0.5046 & 0.8254 & 0.8061  & 0.8569 & 0.6106 \\ \hline
+45   & 0.7024 & 0.8978 & -0.7461 & 0.8858 & 0.4114 & -0.1791 & 0.8951 & 0.8921  & 0.8719 & 0.6553 \\ \hline
+50   & 0.6254 & 0.888  & -0.3086 & 0.8304 & -0.1822 & -0.0805 & 0.781  & 0.923   & 0.8802 & 0.715  \\ \hline
+55   & 0.5494 & 0.9419 & -0.0822 & 0.8367 & -0.1029 & 0.2337 & 0.8844 & 0.9036  & 0.6567 & 0.8113 \\ \hline
+60   & 0.8188 & 0.9416 & 0.4638 & 0.7924 & 0.1998 & -0.1494 & 0.8361 & 0.8961  & 0.6763 & 0.6947 \\ \hline
+65   & 0.8671 & 0.9438 & -4.47  & 0.8266 & -0.8745 & 0.2756 & 0.8185 & 0.9098  & 0.6458 & 0.6236 \\ \hline
+70   & 0.5304 & 0.8963 & -1.6918 & 0.8527 & 0.2268 & -0.4458 & 0.863  & 0.8482  & 0.3222 & 0.7463 \\ \hline
+75   & 0.2982 & 0.8001 & -4.8958 & 0.8836 & 0.1831 & 0.1325 & 0.8091 & 0.9118  & 0.4866 & 0.5037 \\ \hline
+80   & 0.6393 & 0.7413 & -4.5137 & 0.8872 & 0.2053 & -0.1138 & 0.8285 & 0.9116  & 0.4647 & 0.2877 \\ \hline
+85   & 0.6202 & 0.7813 & -6.5991 & 0.9055 & 0.2544 & -0.8175 & 0.8934 & 0.8907  & 0.1637 & 0.7663 \\ \hline
+90   & 0.7495 & 0.8424 & -14.0999 & 0.8639 & 0.2088 & -0.1559 & 0.8999 & 0.9043  & 0.012  & 0.4482 \\ \hline
+95   & 0.3205 & 0.782  & -13.0635 & 0.8768 & -0.1448 & -0.1478 & 0.7864 & 0.9243  & 0.3053 & 0.5138 \\ \hline
+100  & 0.3807 & 0.8361 & -12.3296 & 0.8027 & 0.2364 & -0.2861 & 0.6074 & 0.9187  & 0.2899 & -0.0378 \\ \hline
+105  & 0.773  & 0.8486 & -12.6145 & 0.8401 & 0.4717 & -0.4211 & 0.8619 & 0.8519  & 0.5007 & 0.302  \\ \hline
+110  & 0.484  & 0.8837 & -3.3872 & 0.7728 & 0.2989 & 0.119  & -0.0746 & 0.8794 & 0.1988 & -0.6813 \\ \hline
+115  & 0.6956 & 0.8948 & -1.889  & 0.896  & 0.3601 & -0.5438 & 0.8079 & 0.8741  & 0.7152 & 0.5148 \\ \hline
+120  & 0.8559 & 0.8824 & -3.2654 & 0.8183 & -0.601  & 0.1383 & 0.8809 & 0.8157  & 0.7066 & 0.3904 \\ \hline
+125  & 0.8604 & 0.8099 & -5.2114 & 0.8805 & -0.2484 & -0.1777 & 0.842  & 0.8632  & 0.8898 & 0.62   \\ \hline
+\end{tabular}
+\end{table}
+\newpage
+\item RMSE
+\begin{table}[htbp]
+\centering
+\caption{RMSE}
+\label{RMSE_term_long}
+\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+\hline
+term & BA    & CAT   & GM    & GS    & MMM   & NOC   & NVDA  & PFE   & WMT   & XOM   \\ \hline
+10   & 0.0391 & 0.1088 & 0.0423 & 0.0717 & 0.0698 & 0.0501 & 0.0342 & 0.161  & 0.0612 & 0.0466 \\ \hline
+15   & 0.0432 & 0.1054 & 0.0612 & 0.0704 & 0.1002 & 0.0712 & 0.0319 & 0.0442 & 0.0733 & 0.0737 \\ \hline
+20   & 0.0487 & 0.0931 & 0.0854 & 0.0644 & 0.3377 & 0.0982 & 0.0299 & 0.031  & 0.0801 & 0.0665 \\ \hline
+25   & 0.0484 & 0.1328 & 0.0561 & 0.0761 & 0.7321 & 0.1135 & 0.0325 & 0.062  & 0.0612 & 0.0455 \\ \hline
+30   & 0.0547 & 0.096  & 0.0681 & 0.0762 & 0.114  & 0.0816 & 0.0439 & 0.0319 & 0.0937 & 0.061  \\ \hline
+35   & 0.0709 & 0.0729 & 0.0572 & 0.0707 & 0.106  & 0.1487 & 0.0308 & 0.039  & 0.0663 & 0.0618 \\ \hline
+40   & 0.0491 & 0.1359 & 0.0609 & 0.0767 & 0.0986 & 0.0879 & 0.0395 & 0.0537 & 0.0754 & 0.0951 \\ \hline
+45   & 0.0724 & 0.0958 & 0.1104 & 0.0645 & 0.0816 & 0.1421 & 0.0307 & 0.0401 & 0.0706 & 0.0889 \\ \hline
+50   & 0.0812 & 0.1006 & 0.0957 & 0.0785 & 0.116  & 0.1384 & 0.0444 & 0.0356 & 0.0679 & 0.0808 \\ \hline
+55   & 0.089  & 0.0728 & 0.087  & 0.0767 & 0.1128 & 0.116  & 0.0325 & 0.0422 & 0.113  & 0.0658 \\ \hline
+60   & 0.0563 & 0.0731 & 0.0608 & 0.0861 & 0.0965 & 0.1427 & 0.0389 & 0.0438 & 0.1086 & 0.0833 \\ \hline
+65   & 0.0482 & 0.0717 & 0.1917 & 0.0781 & 0.1488 & 0.1172 & 0.0412 & 0.0407 & 0.1118 & 0.0917 \\ \hline
+70   & 0.0904 & 0.0974 & 0.1329 & 0.0715 & 0.0971 & 0.166  & 0.036  & 0.0525 & 0.1539 & 0.0746 \\ \hline
+75   & 0.1104 & 0.1368 & 0.1942 & 0.063  & 0.1006 & 0.1291 & 0.0428 & 0.0394 & 0.1324 & 0.1034 \\ \hline
+80   & 0.079  & 0.1556 & 0.1847 & 0.0615 & 0.0996 & 0.1464 & 0.0407 & 0.0392 & 0.1344 & 0.1231 \\ \hline
+85   & 0.083  & 0.1428 & 0.2113 & 0.0553 & 0.0972 & 0.1865 & 0.0324 & 0.0439 & 0.1657 & 0.0693 \\ \hline
+90   & 0.0687 & 0.1222 & 0.2936 & 0.0652 & 0.1037 & 0.148  & 0.0315 & 0.041  & 0.1795 & 0.1053 \\ \hline
+95   & 0.1137 & 0.1433 & 0.2786 & 0.0611 & 0.1261 & 0.1452 & 0.0463 & 0.0364 & 0.15   & 0.0972 \\ \hline
+100  & 0.109  & 0.1243 & 0.2709 & 0.0774 & 0.1033 & 0.1527 & 0.0629 & 0.038  & 0.1514 & 0.1413 \\ \hline
+105  & 0.0724 & 0.1197 & 0.2741 & 0.0701 & 0.0864 & 0.1576 & 0.0371 & 0.0518 & 0.1272 & 0.1148 \\ \hline
+110  & 0.1097 & 0.1049 & 0.1556 & 0.0837 & 0.0997 & 0.1227 & 0.1036 & 0.0475 & 0.1614 & 0.1768 \\ \hline
+115  & 0.0851 & 0.1    & 0.1252 & 0.0568 & 0.0957 & 0.1575 & 0.044  & 0.0492 & 0.0947 & 0.0943 \\ \hline
+120  & 0.0588 & 0.1059 & 0.1521 & 0.0754 & 0.1511 & 0.1154 & 0.0346 & 0.0627 & 0.0955 & 0.1055 \\ \hline
+125  & 0.0584 & 0.1356 & 0.1846 & 0.0616 & 0.1321 & 0.1329 & 0.0395 & 0.054  & 0.0584 & 0.0836 \\ \hline
+\end{tabular}
+\end{table}
+\end{itemize}
+\newpage
+\section{考察}
+\subsection{アメリカ市場の出来事}
+\label{アメリカ市場}
+以下に各銘柄に影響を与えた大きな出来事を列挙する。
+\begin{itemize}
+    \item \textbf{IT}
+    \begin{itemize}
+        \item 2021年4月12日 - NVIDIAがArm Holdingsの買収を発表し、市場の関心を集めた。
+        \begin{itemize}
+            \item RSIが急上昇し、過熱気味の状態となった。
+        \end{itemize}
+        \item 2022年3月28日 - NVIDIAがArm Holdingsの買収を中止すると発表し、株価に影響を与えた。
+        \begin{itemize}
+            \item MACDが売りサインを示し、売り圧力が強まった。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{薬}
+    \begin{itemize}
+        \item 2021年11月8日 - PfizerとBioNTechがCOVID-19ワクチンの有効性に関する成功報告を発表し、株価が急騰した。
+        \begin{itemize}
+            \item Bollinger Bandsが急激な拡張を示し、過熱市場の兆候が見られた。
+        \end{itemize}
+        \item 2022年7月19日 - PfizerがCOVID-19ワクチンの需要が鈍化すると発表し、株価が下落した。
+        \begin{itemize}
+            \item 10日移動平均線が50日移動平均線を下回り、ベアマーケットの兆候が現れた。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{石油}
+    \begin{itemize}
+        \item 2021年9月13日 - Exxon Mobilがカリフォルニア州での新しい石油プロジェクトの計画を発表し、株価が上昇した。
+        \begin{itemize}
+            \item トレンドラインが急速に上昇し、買い圧力が強まった。
+        \end{itemize}
+        \item 2022年5月5日 - Exxon Mobilが環境保護団体からの圧力を受け、炭素排出削減計画を発表し、株価が変動した。
+        \begin{itemize}
+            \item 大口投資家の売り注文が急増し、買い圧力が減少した。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{銀行}
+    \begin{itemize}
+        \item 2021年6月10日 - Goldman Sachsがオンライン取引プラットフォームのロビンフッドに対する投資を開始し、株価が上昇した。
+        \begin{itemize}
+            \item トレンドラインが急速に上昇し、買い圧力が強まった。
+        \end{itemize}
+        \item 2022年2月28日 - インフレ懸念が高まり、金利引き上げの懸念から銀行株が下落した。
+        \begin{itemize}
+            \item RSIが急落し、売り圧力が増加した。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{自動車}
+    \begin{itemize}
+        \item 2021年8月5日 - General Motorsが電動車技術への投資を強化する計画を発表し、株価が上昇した。
+        \begin{itemize}
+            \item MACDがゴールデンクロスを形成し、買いシグナルが発生した。
+        \end{itemize}
+        \item 2022年12月20日 - 自動車業界全体が半導体供給不足による生産遅延に苦しんだことが明らかになり、株価が影響を受けた。
+        \begin{itemize}
+            \item 移動平均乖離率がマイナスに転じ、売り圧力が増大した。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{アメリカ軍事}
+    \begin{itemize}
+        \item 2021年10月4日 - Northrop Grummanが新しい防衛契約を獲得し、株価が上昇した。
+        \begin{itemize}
+            \item ボリンジャーバンドが急激に拡大し、過熱市場の兆候が見られた。
+        \end{itemize}
+        \item 2022年8月15日 - アフガニスタンからのアメリカ軍の撤退が完了し、防衛関連企業の株価に影響が出た。
+        \begin{itemize}
+            \item RSIが急落し、売り圧力が増加した。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{工業}
+    \begin{itemize}
+        \item 2021年3月20日 - Caterpillarがインフラ投資計画の契機となる大規模な建設プロジェクトの受注を発表し、株価が上昇した。
+        \begin{itemize}
+            \item 移動平均線がゴールデンクロスを形成し、買いシグナルが発生した。
+        \end{itemize}
+        \item 2022年11月10日 - 原材料価格の上昇により、製造業の需要が減少し、株価が下落した。
+        \begin{itemize}
+            \item MACDがデッドクロスを形成し、売りシグナルが発生した。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{小売チェーン}
+    \begin{itemize}
+        \item 2021年11月26日 - 米国におけるブラック・フライデーの売り上げが過去最高を記録し、小売業界の株価にプラスの影響を与えた。
+        \begin{itemize}
+            \item ボリンジャーバンドが急激に拡大し、過熱市場の兆候が見られた。
+        \end{itemize}
+        \item 2022年2月14日 - 小売業者がコロナウイルスの新たな変異株による需要の変動に直面し、株価が変動した。
+        \begin{itemize}
+            \item 移動平均乖離率がマイナスに転じ、売り圧力が増大した。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{ゴム}
+    \begin{itemize}
+        \item 2021年7月29日 - 3Mが新しいグリーンテクノロジー製品の発表を行い、株価が上昇した。
+        \begin{itemize}
+            \item RSIが急上昇し、過熱気味の状態となった。
+        \end{itemize}
+        \item 2022年9月8日 - 3Mが原材料価格の上昇による利益の減少を発表し、株価が下落した。
+        \begin{itemize}
+            \item MACDがデッドクロスを形成し、売りシグナルが発生した。
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{飛行機}
+    \begin{itemize}
+        \item 2021年4月12日 - Boeingが737 Maxの運航再開を発表し、株価が上昇した。
+        \begin{itemize}
+            \item ボリンジャーバンドが急激に拡大し、過熱市場の兆候が見られた。
+        \end{itemize}
+        \item 2022年1月28日 - Boeingが787 Dreamlinerの生産停止を発表し、株価が下落した。
+        \begin{itemize}
+            \item RSIが急落し、売り圧力が増加した。
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\subsection{市場状況を含めた銘柄についての考察}
+\ref{アメリカ市場}で各銘柄の個別材料をテクニカル指標を含めて列挙した。ここで分かることは株価変動とともにテクニカル指標も変化し上昇や下降のシグナルを発していることである。つまり株価変動のインパクトはテクニカル指標の変動に大きな影響を与える。ゆえに実際に投資家が売買を行う際には大抵多くのテクニカル指標を参照する。
+この考えから、テクニカル指標を特徴量として入力することにより、株価予測の精度をより高くできるのではないかと考えた。しかし、結果に目を向けると予測精度が高いときだけではなく，上手く予測できないこともある。この要因を考えていく。
+しかし、長期データに関しては比較的予測精度は高い。以下は私の考えである、長期データの予測精度が高い理由を以下に示す。
+\begin{itemize}
+\item 学習するデータ量が多く、株価変動パターンの読み込みに成功していると考えられる。
+\item テクニカル指標と株価の遷移が連動している場合は特に正確に予測ができていることが確認できる。しかし、テクニカル指標のシグナルが出てからグラフが変化しているようにも見える。これはテクニカル指標のシグナルが遅れると予測も遅れることを意味する。実際に結果を見ると若干遅れている時がある。
+\item ウィンドウサイズの検証には計算区間を固定している。これは物差しを固定しているようなものであり、15センチ定規で身長を図ることと同じである。つまり、データサイズに合わせてウィンドウサイズを変更しなければならないと考えられる。例えばテクニカル指標の移動平均はデータ区分（日次・週次等）やデータの長さに応じて適切なパラメータを設定する必要がある。つまり、今回設定した計算区間が長期のデータに適していたと考えられる。
+\item 長期データに関してウィンドウサイズの検証、計算区間の検証どちらも比較的高い評価値が出ている。特に図\ref{fig:GS_20_long_windowsize_80}は高い評価値を出している。これはトレンドラインに乗っていること起因していると考えられる。このことから、良い結果が出ている場合はテクニカル指標のシグナルが強く出ていることが多いと考えられる。
+\end{itemize}
+
+\subsection{トレンドライン}
+注目している銘柄が上昇トレンドであればテクニカル指標のシグナルが発せられるため、予測精度が向上すると考えられる。これは図\ref{fig:GS_20_long_windowsize_80}がとても分かりやすい。以下の図に上昇トレンドになっている様子を示す。
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{torrendline.png}
+\caption{トレンドライン}
+\label{torrendline}
+\end{center}
+\end{figure}
+
+
+\subsection{レンジブレイク}
+実際の株価がレンジから外れると今まで学習してきた上限値が使えなくなってしまうため予測精度が大幅に低下すると考えられる。これは図\ref{fig:NOC_short_windowsize_60}がとても分かりやすい。以下の図
+\ref{torrendline}にレンジブレイクしている様子を示す。
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.48]{rangebreak.png}
+\caption{レンジブレイク}
+\label{rangebreak}
+\end{center}
+\end{figure}
+\subsection{急落}
+株価がいきなり急落するとそれまで学習してきたパターンと異なるため予測精度が低下すると考えられる。本研究では図\ref{WMT_short_term_115}がとても分かりやすい。この図ではそこまで下がらないと予測しているが実際は大幅に株価が下がっている。
+
+\newpage
+\section*{参考文献}
+\addcontentsline{toc}{section}{参考文献}
+\vspace{-\baselineskip}
+\vspace{-\baselineskip}
+\renewcommand{\refname}{}
+\begin{thebibliography}{99}
+\bibitem{人口知能学会研究会資料1} 片寄諒亮、吉岡真治(2020)、「機械学習によるテクニカル分析の影響の調査」、『人工知能学会研究資料』、FIN-024
+\bibitem{人工知能学会研究資料2} 松本健、牧本直樹(2019)、「LSTMによる時系列予測と株式投資戦略への応用」、『人工知能学会研究資料』、FIN-022
+\bibitem{リラックスした生活} さく、"PythonでKerasのLSTMを用いて株価の予測を試した"、リラックスした生活を過ごすために、\\https://relaxing-living-life.com/128/(2023/10/1) 
+\bibitem{テクニカル指標リスト} minaul、"TA-Lib辞典"、note、\\https://note.com/minaul/n/n83f00aab1943(2022/7/8) 
+\bibitem{指数平滑移動平均について} OANDA証券株式会社、"指数平滑移動平均線の計算方法や他の移動平均線との違いを紹介"、OANDA証券、\\https://www.oanda.jp/lab-education/technical\_analysis/moving\_average/\\exponential\_smoothing\_moving\_average/
+\bibitem{移動返金について} Tsukamoto Hiroyuki、"移動平均とは？移動平均線の意味・計算方法・メリットをわかりやすく紹介"、資産運用のすゝめ、\\https://tsuker.net/2020/11/moving-average.html\#toc2
+\bibitem{正規化について} Suzuki Kenji、"[Python MinMaxScaler] 0から1に正規化"、Qiita、\\https://qiita.com/Qiitaman/items/c94420e8b86aae5f28a9(2021/1/21)
+\bibitem{関係係数について}XICA、決定係数が高ければOKは危ない！決定係数を正しく理解しよう、XICA、\\https://marketing.xica.net/column/about-coefficient-of-determination/
+\end{thebibliography}
+ 
+\end{document}
