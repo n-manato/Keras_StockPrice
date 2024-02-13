@@ -1,28 +1,28 @@
 # 警告を無視する
+import datetime as dt
+import yfinance as yf
+import japanize_matplotlib
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.preprocessing import MinMaxScaler
+from keras.layers import Dense, LSTM
+from keras.models import Sequential
+import numpy as np
+import pandas_datareader as web
+import math
 import warnings
 warnings.filterwarnings('ignore')
 
 # ライブラリを読み込む
-import math
-import pandas_datareader as web
-import numpy as np
 
 # kerasのライブラリを読み込む
-from keras.models import Sequential
-from keras.layers import Dense, LSTM
 
 # scikit-learnの正規を行うライブラリを読み込む
-from sklearn.preprocessing import MinMaxScaler
 
 # scikit-learnで決定係数とRMSEの計算を行うライブラリを読み込む
-from sklearn.metrics import r2_score, mean_squared_error
 
 # グラフ表示のライブラリとグラフ表示で日本語を表示するためのライブラリを読み込む
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import japanize_matplotlib
-import yfinance as yf
-import datetime as dt
 
 # データの範囲
 start = dt.date(2021, 1, 1)
@@ -83,7 +83,8 @@ units1 = 25         # 第1層の出力数
 units2 = 1          # 第2層の出力数
 
 model = Sequential()
-model.add(LSTM(n_hidden, return_sequences=True, input_shape=(x_train_3D.shape[1], 1)))
+model.add(LSTM(n_hidden, return_sequences=True,
+          input_shape=(x_train_3D.shape[1], 1)))
 model.add(LSTM(n_hidden, return_sequences=False))
 model.add(Dense(units1))
 model.add(Dense(units2))
@@ -134,6 +135,9 @@ rmse = np.sqrt(mean_squared_error(y_test, predictions))
 
 print(f'r2_score: {r2_score:.4f}')
 print(f'rmse: {rmse:.4f}')
+print(model.layers[0].activation)
+print(model.layers[1].activation)
+print(model.layers[2].activation)
 
 # 予測データは正規化されているので、元の株価に戻す
 predictions = scaler.inverse_transform(predictions)
@@ -170,7 +174,8 @@ ax1.grid()
 ax2.set_title('予測の価格と実際の価格の散布図表示', fontsize=16)
 ax2.set_xlabel('予測の価格', fontsize=12)
 ax2.set_ylabel('実際の価格', fontsize=12)
-ax2.scatter(valid['Close'], valid['Predictions'], label=f'r2_score: {r2_score:.4f} \n rmse: {rmse:.4f}')
+ax2.scatter(valid['Close'], valid['Predictions'],
+            label=f'r2_score: {r2_score:.4f} \n rmse: {rmse:.4f}')
 ax2.plot(valid['Close'], valid['Close'], 'k-')
 ax2.legend()
 ax2.grid()

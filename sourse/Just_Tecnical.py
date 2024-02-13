@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 
 # データの範囲
-start = dt.date(2020, 1, 1)
-end = dt.date(2023, 1, 1)
+start = dt.date(2021, 1, 1)
+end = dt.date(2022, 1, 1)
 
 # データ取得
-ticker = 'GS'
+ticker = 'NOC'
 data = yf.download(ticker, start=start, end=end)
 
 # カラムの名前を変更

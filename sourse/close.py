@@ -16,10 +16,15 @@ data = yf.download(ticker, start=start, end=end)
 # カラムの名前を変更
 data.columns = ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 
-plt.figure(figsize=(12, 6))
-plt.plot(data.index, data['Close'], label='Close', linewidth=0.7, color='red')
+data['EMA'] = talib.EMA(data['Close'], timeperiod=75)
+macd, signal, _ = talib.MACD(
+    data['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
 
-plt.title('終値とテクニカル指標の比較', fontsize=16)
+plt.figure(figsize=(12, 6))
+plt.plot(data.index, data['Close'], label='Close', linewidth=0.7, color='blue')
+plt.plot(data.index, data['EMA'], label='EMA', linewidth=0.7, color='red')
+
+
 plt.xlabel('日付')
 plt.ylabel('価格 / 指標値')
 plt.grid()
